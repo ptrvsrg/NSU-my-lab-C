@@ -1,5 +1,4 @@
 src/testCreater.c
-.vscode/
 test/testlab0.c
 test/testlab1-0.c
 test/testlab1-1.c
