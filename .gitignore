@@ -1,1 +1,13 @@
 src/testCreater.c
+.vscode/
+test/testlab0.c
+test/testlab1-0.c
+test/testlab1-1.c
+test/testlab2.c
+test/testlab3-0.c
+test/testlab4.c
+test/testlab5.c
+test/testlab6.c
+test/testlab7.c
+test/testlab8-0.c
+test/testlab9.c
