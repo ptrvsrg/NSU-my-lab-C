@@ -1,3 +1,4 @@
+.vscode/
 src/testCreater.c
 test/testlab0.c
 test/testlab1-0.c
