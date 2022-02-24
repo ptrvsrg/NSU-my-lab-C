@@ -1,0 +1,39 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc.exe сборка активного файла",
+            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-Werror",
+                "-Wall",
+                "-Wextra",
+                "-Waddress",
+                "-Warray-bounds",
+                "-Wbuiltin-macro-redefined",
+                "-Wswitch",
+                "-Wunreachable-code",
+                "-pedantic",
+                "-pedantic-errors",
+                "-std=c99",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "компилятор: C:\\MinGW\\bin\\gcc.exe"
+        }
+    ]
+}
