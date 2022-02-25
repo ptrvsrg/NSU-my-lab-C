@@ -21,7 +21,7 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "main.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"
