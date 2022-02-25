@@ -303,7 +303,6 @@ bool RotationCheck(TPoint a, TPoint b, TPoint c)
     return VectorMultiplication(a, b, c) > 0;
 }
 
-
 TStack GrahamAlgorithm(TVector vector, int (*compare)(const void*, const void*))
 {
     if (vector.Count == 0)
