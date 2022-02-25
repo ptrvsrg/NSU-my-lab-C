@@ -11,7 +11,7 @@ static jmp_buf position;
 enum
 {
     SUCCESS_JUMP = 1,
-    MAX_POINT_COUNT = 5000
+    MAX_POINT_COUNT = 2000
 };
 
 typedef struct
@@ -191,12 +191,12 @@ void FindMinMax(TVector vector, TPoint* min, TPoint* max)
 
     for (int i = 0; i < vector.Count; ++i)
     {
-        if (vector.Array[i].Y < minimum.Y || (vector.Array[i].Y == minimum.Y && vector.Array[i].X < minimum.X))
+        if (vector.Array[i].X < minimum.X || (vector.Array[i].X == minimum.X && vector.Array[i].Y < minimum.Y))
         {
             minimum = vector.Array[i];
         }
 
-        if (maximum.Y < vector.Array[i].Y || (vector.Array[i].Y == maximum.Y && maximum.X < vector.Array[i].X))
+        if (maximum.X < vector.Array[i].X || (vector.Array[i].X == maximum.X && maximum.Y < vector.Array[i].Y))
         {
             maximum = vector.Array[i];
         }  
@@ -303,6 +303,7 @@ bool RotationCheck(TPoint a, TPoint b, TPoint c)
     return VectorMultiplication(a, b, c) > 0;
 }
 
+
 TStack GrahamAlgorithm(TVector vector, int (*compare)(const void*, const void*))
 {
     if (vector.Count == 0)
@@ -338,6 +339,19 @@ TStack GrahamAlgorithm(TVector vector, int (*compare)(const void*, const void*))
 
 void AndrewAlgorithm(TVector vector)
 {
+    if (vector.Count == 0)
+    {
+        return;
+    }
+    
+    if (vector.Count == 1)
+    {
+        TStack stack = CreateItem(*vector.Array);
+        PrintStack(stack);
+        DestroyStack(&stack);
+        return;
+    }
+
     TPoint min = { INT16_MAX, INT16_MAX };
     TPoint max = { INT16_MIN, INT16_MIN };
 
@@ -371,7 +385,9 @@ int main(void)
     if (setjmp(position) == 0)
     {
         TVector vector = InputVector();
+
         AndrewAlgorithm(vector);
+        
         DestroyVector(&vector);
     }
     
