@@ -11,29 +11,34 @@ typedef struct
 static int testN = 0;
 static const struct { const char *const in, *const outError; int pointCount; point_t outPoints[8]; } testInOut[] = {
     { "4\n0 0\n2 1\n4 0\n0 4\n", NULL, 3, { {0, 0}, {4, 0}, {0, 4} } }, // 1
-    { "2001", "bad number of points", 0, { NO_POINTS } }, // 2
-    { "3\n200000 1\n0 300000\n400000 500000\n", "bad coordinates", 0, { NO_POINTS } }, // 3
-    { "5\n1 1\n4 5\n", "bad number of lines", 0, { NO_POINTS } }, // 4
+    { "2001\n", "bad number of points", 0, { { NO_POINTS, NO_POINTS } } }, // 2
+    { "3\n200000 1\n0 300000\n400000 500000\n", "bad coordinates", 0, { { NO_POINTS, NO_POINTS } } }, // 3
+    { "5\n1 1\n4 5\n", "bad number of lines", 0, { { NO_POINTS, NO_POINTS } } }, // 4
 
-    { "4\n-32768 0\n0 32767\n0 -32768\n32767 0", NULL, 4, { {0, -32768}, {32767, 0}, {0, 32767}, {-32768, 0} } }, // 5
-    { "5\n-32768 0\n0 32767\n0 -32768\n32767 0\n0 0", NULL, 4, { {0, -32768}, {32767, 0}, {0, 32767}, {-32768, 0} } }, // 6
-    { "8\n-32768 0\n0 32767\n0 -32768\n32767 0\n-32768 -32768\n-32768 32767\n32767 -32768\n32767 32767", NULL, 4, { {-32768, -32768}, {32767, -32768}, {32767, 32767}, {-32768, 32767} } }, // 7
-    { "4\n32767 32767\n32767 32767\n32767 32767\n32767 32767", NULL, 1, { {32767, 32767} } }, //8
+    { "0\n", NULL, 0, { { NO_POINTS, NO_POINTS } } }, // 5
+    { "4\n-32768 0\n0 32767\n0 -32768\n32767 0\n", NULL, 4, { {0, -32768}, {32767, 0}, {0, 32767}, {-32768, 0} } }, // 6
+    { "5\n-32768 0\n0 32767\n0 -32768\n32767 0\n0 0\n", NULL, 4, { {0, -32768}, {32767, 0}, {0, 32767}, {-32768, 0} } }, // 7
+    { "8\n-32768 0\n0 32767\n0 -32768\n32767 0\n-32768 -32768\n-32768 32767\n32767 -32768\n32767 32767\n", NULL, 4, { {-32768, -32768}, {32767, -32768}, {32767, 32767}, {-32768, 32767} } }, // 8
     
-    { "8\n2 3", NULL, 1, { {2, 3} } }, // 9
-    { "1\n2 3", NULL, 1, { {2, 3} } }, // 10
+    { "4\n4 4\n2 3\n4 0\n0 4\n", NULL, 3, { {4, 4}, {4, 0}, {0, 4} } }, // 9
+    { "1\n2 3\n", NULL, 1, { {2, 3} } }, // 10
     { "2\n1 1\n4 5\n", NULL, 2, { {1, 1}, {4, 5} } }, // 11
     { "5\n0 0\n2 3\n4 0\n0 4\n4 4\n", NULL, 4, { {0, 0}, {4, 0}, {0, 4}, {4, 4} } }, // 12
 
-    { "0", NULL, 0, { NO_POINTS } }, // 13
-    { "2001\n200000 1\n0 300000\n400000 500000\n", "bad number of points", 0, { NO_POINTS } }, // 14
-    { "5\n200000 1\n0 300000\n400000 500000\n", "bad coordinates", 0, { NO_POINTS } }, // 15
-    { "3\n1 2\n 4 3\n 5\n", "bad number of lines", 0, { NO_POINTS } }, // 16
+    { "-1\n", "bad number of points", 0, { { NO_POINTS, NO_POINTS } } }, // 13
+    { "2001\n200000 1\n0 300000\n400000 500000\n", "bad number of points", 0, { { NO_POINTS, NO_POINTS } } }, // 14
+    { "5\n200000 1\n0 300000\n400000 500000\n", "bad coordinates", 0, { { NO_POINTS, NO_POINTS } } }, // 15
+    { "3\n1 2\n 4 3\n 5\n", "bad number of lines", 0, { { NO_POINTS, NO_POINTS } } }, // 16
+
+    { "3\n1 2\n4 -200000\n6 5\n", "bad coordinates", 0, { { NO_POINTS, NO_POINTS } } }, // 17
+    { "-1\n1 2\n4 -200000\n6 5\n", "bad number of points", 0, { { NO_POINTS, NO_POINTS } } }, // 18
+    { "3\n4 0\n0 0\n0 4\n", NULL, 3, { {0, 0}, { 0, 4 }, { 4, 0 } } }, // 19
+    { "3\n-7 3\n0 0\n7 -3\n", NULL, 3, { {-7, 3}, { 7, -3 } } }, // 20
     
-    { "8\n0 0\n0 0\n0 0\n0 0\n0 0\n0 0\n0 0\n0 0", NULL, 1, { {0, 0} } }, // 17
-    { "8\n0 7\n0 4\n0 0\n0 3\n0 2\n0 1\n0 5\n0 6\n", NULL, 2, { {0, 0}, {0, 6} } }, // 18
-    { "8\n3 3\n-1 -1\n5 5\n-4 -4\n1 1\n2 2\n-2 -2\n3 3\n", NULL, 2, { {-4 -4}, {5, 5} } }, // 19
-    { "8\n4 -3\n3 4\n-3 -4\n-4 3\n4 3\n3 -4\n-4 -3\n-3 4\n", NULL, 8, { {-3, -4}, {3, -4}, {4, -3}, {4, 3}, {3, 4}, {-3, 4}, {-4, 3}, {-4, -3} } }, // 20
+    { "8\n7 0\n4 0\n0 0\n3 0\n2 0\n1 0\n5 0\n6 0\n", NULL, 1, { {0, 0}, { 6, 0 } } }, // 21
+    { "8\n0 7\n0 4\n0 0\n0 3\n0 2\n0 1\n0 5\n0 6\n", NULL, 2, { {0, 0}, {0, 6} } }, // 22
+    { "8\n3 3\n-1 -1\n5 5\n-4 -4\n1 1\n2 2\n-2 -2\n3 3\n", NULL, 2, { {-4, -4}, {5, 5} } }, // 23
+    { "8\n4 -3\n3 4\n-3 -4\n-4 3\n4 3\n3 -4\n-4 -3\n-3 4\n", NULL, 8, { {-3, -4}, {3, -4}, {4, -3}, {4, 3}, {3, 4}, {-3, 4}, {-4, 3}, {-4, -3} } }, // 24
 };
 
 static int FeedFromArray(void)
@@ -48,10 +53,6 @@ static int FeedFromArray(void)
     fprintf(in, "%s", testInOut[testN].in);
     fclose(in);
     return 0;
-}
-
-const char* ScanPoint(FILE* out, point_t* a) {
-    return (ScanInt(out, &a->x) == Fail) ? Fail : ScanInt(out, &a->y);
 }
 
 static int CheckFromArray(void)
@@ -69,21 +70,32 @@ static int CheckFromArray(void)
         int findedCount = 0;
 
         for (int i = 0; i < testInOut[testN].pointCount; i++) {
-            point_t point = { 0, 0 };
-            const char* status = ScanPoint(out, &point);
+            int x = 0;
+            const char* status = ScanInt(out, &x);
 
             if (status == Fail) {
                 fclose(out);
                 printf("%s\n", status);
-                return status == Fail;
+                return 1;
             }
+
+            int y = 0;
+            status = ScanInt(out, &y);
+
+            if (status == Fail) {
+                fclose(out);
+                printf("%s\n", status);
+                return 1;
+            }
+
+            point_t point = { x, y };
             
             for (int j = 0; j < testInOut[testN].pointCount; j++) {
                 if (point.x == testInOut[testN].outPoints[j].x && point.y == testInOut[testN].outPoints[j].y) {
                     if (finded[j] == 1) {
                         fclose(out);
                         printf("%s\n", status);
-                        return status == Fail;
+                        return 1;
                     }
                     
                     ++finded[j];
@@ -100,9 +112,8 @@ static int CheckFromArray(void)
         }
 
         ++testN;
-    }
-    
-    if (testInOut[testN].outError != NULL) {
+    }   
+    else if (testInOut[testN].outError != NULL) {
         char error[32] = {0};
         const char* status = ScanChars(out, sizeof(error), error);
         fclose(out);
@@ -119,8 +130,8 @@ static int CheckFromArray(void)
     int passed = !HaveGarbageAtTheEnd(out);
 
     fclose(out);
-    printf((passed) ? Pass : Fail);
-    return passed;
+    printf("%s\n", (passed) ? Pass : Fail);
+    return !passed;
 }
 
 static int LabTimeout;
@@ -284,6 +295,10 @@ const TLabTest LabTests[] = {
     {FeedFromArray, CheckFromArray}, // 18
     {FeedFromArray, CheckFromArray}, // 19
     {FeedFromArray, CheckFromArray}, // 20
+    {FeedFromArray, CheckFromArray}, // 21
+    {FeedFromArray, CheckFromArray}, // 22
+    {FeedFromArray, CheckFromArray}, // 23
+    {FeedFromArray, CheckFromArray}, // 24
     //{feederBig, checkerBig},
     //{feederBig2, checkerBig2}
 };
