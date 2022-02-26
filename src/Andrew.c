@@ -1,8 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <assert.h>
+#include <limits.h>
 #include <setjmp.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,7 +11,7 @@ static jmp_buf position;
 enum
 {
     SUCCESS_JUMP = 1,
-    MAX_POINT_COUNT = 2000
+    MAX_POINT_COUNT = 100000
 };
 
 typedef struct
@@ -19,6 +19,18 @@ typedef struct
     int X;
     int Y;
 } TPoint;
+
+///////////////////////////////////  ADDITIONAL TYPE  ///////////////////////////////////
+
+long double VectorMultiplication(TPoint a, TPoint b, TPoint c)
+{
+    long double dx1 = (long double)b.X - a.X;
+    long double dx2 = (long double)c.X - a.X;
+    long double dy1 = (long double)b.Y - a.Y;
+    long double dy2 = (long double)c.Y - a.Y;
+
+    return (dx1 * dy2) - (dy1 * dx2);
+}
 
 ///////////////////////////////////  VECTOR TYPE  ///////////////////////////////////
 
@@ -46,15 +58,6 @@ void BadNumberOfPointsError(int pointCount)
     if(pointCount > MAX_POINT_COUNT)
     {
         printf("bad number of points");
-        longjmp(position, SUCCESS_JUMP);
-    }
-}
-
-void BadCoordinatesError(TPoint point)
-{
-    if(point.X > INT16_MAX || point.X < INT16_MIN || point.Y > INT16_MAX || point.Y < INT16_MIN)
-    {
-        printf("bad coordinates");
         longjmp(position, SUCCESS_JUMP);
     }
 }
@@ -91,8 +94,6 @@ TPoint* InputPointArray(int pointCount)
             free(pointArray);
             BadNumberOfLinesError();
         }
-
-        BadCoordinatesError(pointArray[i]);
     }
 
     return pointArray;
@@ -107,78 +108,60 @@ TVector InputVector(void)
 
 ///////////////////////////////////  STACK TYPE  ///////////////////////////////////
 
-typedef struct Tstack* TStack;
-struct Tstack 
+typedef struct
 {
-    TPoint Value;
-    TStack Next;
-};
+    int Count;
+    int Max;
+    TPoint* Array;
+} TStack;
 
-TStack CreateStack(void)
+TStack CreateStack(int max)
 {
-    return NULL;
-}
+    TStack stack = { 0, max, NULL };
 
-bool IsEmptyStack(TStack stack)
-{
-    return stack == NULL;
-}
+    stack.Array = calloc(max, sizeof(*stack.Array));
+    assert(stack.Array != NULL);
 
-TStack CreateItem(TPoint value)
-{
-    TStack new = malloc(sizeof(*new));
-    assert(!IsEmptyStack(new));
-
-    new->Value = value;
-    new->Next = NULL;
-    
-    return new;
+    return stack;
 }
 
 void PushStack(TPoint value, TStack* stack)
 {
-    TStack new = CreateItem(value);
-    new->Next = *stack;
-    (*stack) = new;
+    assert(stack->Count != stack->Max);
+    stack->Array[stack->Count] = value;
+    ++stack->Count;
 }
 
 TPoint TopStack(TStack stack)
 {
-    assert(!IsEmptyStack(stack));
-    return stack->Value;
+    assert(stack.Count > 0);
+    return stack.Array[stack.Count - 1];
 }
 
 TPoint NextToTopSTack(TStack stack)
 {
-    assert(!IsEmptyStack(stack) && !IsEmptyStack(stack->Next));
-    return stack->Next->Value;
+    assert(stack.Count > 1);
+    return stack.Array[stack.Count - 2];
 }
 
 void PopStack(TStack* stack)
 {
-    assert(!IsEmptyStack(*stack));
-
-    TStack removeItem = *stack;
-    *stack = (*stack)->Next;
-
-    free(removeItem);
+    assert(stack->Count > 0);
+    --stack->Count;
 }
 
 void DestroyStack(TStack* stack) 
 {
-    if (!IsEmptyStack(*stack))
-    {
-        DestroyStack(&(*stack)->Next);
-        free(*stack);
-    }
+    free(stack->Array);
+    stack->Count = 0;
+    stack->Max = 0;
 }
 
 void PrintStack(TStack stack)
 {
-    if(!IsEmptyStack(stack))
+    for (int i = 0; i < stack.Count; ++i)
     {
-        printf("%d %d\n", stack->Value.X, stack->Value.Y);
-        PrintStack(stack->Next);
+        printf("%d %d\n", stack.Array[i].X, stack.Array[i].Y);
     }
 }
 
@@ -186,8 +169,8 @@ void PrintStack(TStack stack)
 
 void FindMinMax(TVector vector, TPoint* min, TPoint* max)
 {
-    TPoint minimum = { INT16_MAX, INT16_MAX };
-    TPoint maximum = { INT16_MIN, INT16_MIN };
+    TPoint minimum = { INT_MAX, INT_MAX };
+    TPoint maximum = { INT_MIN, INT_MIN };
 
     for (int i = 0; i < vector.Count; ++i)
     {
@@ -206,62 +189,27 @@ void FindMinMax(TVector vector, TPoint* min, TPoint* max)
     *max = maximum;
 }
 
-TVector CreateUpperVector(TVector vector, TPoint min, TPoint max)
+TVector CreateLowerOrUpperVector(TVector vector, TPoint min, TPoint max, bool isLower)
 {
-    TPoint* upperSet = calloc(vector.Count, sizeof(*vector.Array));
-    assert(upperSet != NULL);
-    
-    int64_t dx1 = (int64_t)max.X - min.X;
-    int64_t dy1 = (int64_t)max.Y - min.Y;
+    TPoint* set = calloc(vector.Count, sizeof(*vector.Array));
+    assert(set != NULL);
 
     int index = 0;
-
     for (int i = 0; i < vector.Count; ++i)
     {
-        int64_t dx2 = (int64_t)vector.Array[i].X - min.X;
-        int64_t dy2 = (int64_t)vector.Array[i].Y - min.Y;
-
-        if(dy2 * dx1 > dy1 * dx2)
+        long double mult = VectorMultiplication(min, max, vector.Array[i]);
+        if ((mult < 0 && isLower) || (mult > 0 && !isLower))
         {
-            upperSet[index] = vector.Array[i];
+            set[index] = vector.Array[i];
             ++index;
         }
     }
 
-    upperSet[index] = min;
-    upperSet[index + 1] = max;
+    set[index] = min;
+    set[index + 1] = max;
     index += 2;
     
-    return CreateVector(index, upperSet);
-}
-
-TVector CreateLowerVector(TVector vector, TPoint min, TPoint max)
-{
-    TPoint* lowerSet = calloc(vector.Count, sizeof(*vector.Array));
-    assert(lowerSet != NULL);
-    
-    int64_t dx1 = (int64_t)max.X - min.X;
-    int64_t dy1 = (int64_t)max.Y - min.Y;
-
-    int index = 0;
-
-    for (int i = 0; i < vector.Count; ++i)
-    {
-        int64_t dx2 = (int64_t)vector.Array[i].X - min.X;
-        int64_t dy2 = (int64_t)vector.Array[i].Y - min.Y;
-
-        if(dy2 * dx1 < dy1 * dx2)
-        {
-            lowerSet[index] = vector.Array[i];
-            ++index;
-        }
-    }
-
-    lowerSet[index] = min;
-    lowerSet[index + 1] = max;
-    index += 2;
-    
-    return CreateVector(index, lowerSet);
+    return CreateVector(index, set);
 }
 
 ///////////////////////////////////  COMPARISON FUNCTION FOR QUICK SORT  ///////////////////////////////////
@@ -271,9 +219,13 @@ int CompareLower(const void* a, const void* b)
     const TPoint* A = a;
     const TPoint* B = b;
 
-    int difference = A->X - B->X;
+    long long difference = (long long)A->X - B->X;
+    if (difference == 0)
+    {
+        difference = (long long)A->Y - B->Y;
+    }
 
-    return (difference == 0) ? A->Y - B->Y : difference;
+    return (difference > 0) ? 1 : (difference == 0) ? 0 : -1;
 }
 
 int CompareUpper(const void* a, const void* b)
@@ -281,22 +233,16 @@ int CompareUpper(const void* a, const void* b)
     const TPoint* A = a;
     const TPoint* B = b;
 
-    int difference = B->X - A->X;
+    long long difference = (long long)B->X - A->X;
+    if (difference == 0)
+    {
+        difference = (long long)B->Y - A->Y;
+    }
 
-    return (difference == 0) ? B->Y - A->Y : difference;
+    return (difference > 0) ? 1 : (difference == 0) ? 0 : -1;
 }
 
 ///////////////////////////////////  CHANGED GRAHAM ALGORITHM  ///////////////////////////////////
-
-int64_t VectorMultiplication(TPoint a, TPoint b, TPoint c)
-{
-    int64_t dx1 = (int64_t)b.X - a.X;
-    int64_t dx2 = (int64_t)c.X - a.X;
-    int64_t dy1 = (int64_t)b.Y - a.Y;
-    int64_t dy2 = (int64_t)c.Y - a.Y;
-
-    return (dx1 * dy2) - (dy1 * dx2);
-}
 
 bool RotationCheck(TPoint a, TPoint b, TPoint c)
 {
@@ -305,25 +251,26 @@ bool RotationCheck(TPoint a, TPoint b, TPoint c)
 
 TStack GrahamAlgorithm(TVector vector, int (*compare)(const void*, const void*))
 {
+    TStack stack = CreateStack(vector.Count);
+
     if (vector.Count == 0)
     {
-        return NULL;
+        return stack;
     }
     else if (vector.Count == 1)
     {
-        return CreateItem(*vector.Array);
+        PushStack(vector.Array[0], &stack);
+        return stack;
     }
     
     qsort(vector.Array, vector.Count, sizeof(*vector.Array), compare);
-
-    TStack stack = CreateStack();
 
     PushStack(vector.Array[0], &stack);
     PushStack(vector.Array[1], &stack);
 
     for (int i = 2; i < vector.Count; ++i)
     {
-        while (!IsEmptyStack(stack->Next) && !RotationCheck(TopStack(stack), vector.Array[i], NextToTopSTack(stack)))
+        while (stack.Count > 1 && !RotationCheck(TopStack(stack), vector.Array[i], NextToTopSTack(stack)))
         {
             PopStack(&stack);
         }
@@ -345,32 +292,27 @@ void AndrewAlgorithm(TVector vector)
     
     if (vector.Count == 1)
     {
-        TStack stack = CreateItem(*vector.Array);
-        PrintStack(stack);
-        DestroyStack(&stack);
+        printf("%d %d\n", vector.Array[0].X, vector.Array[0].Y);
         return;
     }
 
-    TPoint min = { INT16_MAX, INT16_MAX };
-    TPoint max = { INT16_MIN, INT16_MIN };
+    TPoint min = { INT_MAX, INT_MAX };
+    TPoint max = { INT_MIN, INT_MIN };
 
     FindMinMax(vector, &min, &max);
 
-    TVector lowerVector = CreateLowerVector(vector, min, max);
-    TVector upperVector = CreateUpperVector(vector, min, max);
-
+    TVector lowerVector = CreateLowerOrUpperVector(vector, min, max, true);
     TStack lowerStack = GrahamAlgorithm(lowerVector, CompareLower);
-    PopStack(&lowerStack);
-    TStack upperStack = GrahamAlgorithm(upperVector, CompareUpper);
-    PopStack(&upperStack);
-
-    PrintStack(lowerStack);
-    PrintStack(upperStack);
-
     DestroyVector(&lowerVector);
-    DestroyVector(&upperVector);
-
+    PopStack(&lowerStack);
+    PrintStack(lowerStack);
     DestroyStack(&lowerStack);
+
+    TVector upperVector = CreateLowerOrUpperVector(vector, min, max, false);
+    TStack upperStack = GrahamAlgorithm(upperVector, CompareUpper);
+    DestroyVector(&upperVector);
+    PopStack(&upperStack);
+    PrintStack(upperStack);
     DestroyStack(&upperStack);
 }
 
@@ -378,20 +320,12 @@ void AndrewAlgorithm(TVector vector)
 
 int main(void)
 {
-    assert(freopen("in.txt", "r", stdin) != NULL);
-    assert(freopen("out.txt", "w", stdout) != NULL);
-
     if (setjmp(position) == 0)
     {
         TVector vector = InputVector();
-
         AndrewAlgorithm(vector);
-        
         DestroyVector(&vector);
     }
-    
-    fclose(stdin);
-    fclose(stdout);
 
     return EXIT_SUCCESS;
 }
