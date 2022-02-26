@@ -55,7 +55,7 @@ void DestroyVector(TVector* vector)
 
 void BadNumberOfPointsError(int pointCount)
 {
-    if(pointCount > MAX_POINT_COUNT)
+    if(pointCount < 0 || pointCount > MAX_POINT_COUNT)
     {
         printf("bad number of points");
         longjmp(position, SUCCESS_JUMP);
