@@ -6,10 +6,10 @@
 typedef struct 
 {
     int x, y;
-} point_t;
+} TPoint;
 
 static int testN = 0;
-static const struct { const char *const in, *const outError; int pointCount; point_t outPoints[8]; } testInOut[] = {
+static const struct { const char *const in, *const outError; int pointCount; TPoint outPoints[8]; } testInOut[] = {
     { "4\n0 0\n2 1\n4 0\n0 4\n", NULL, 3, { {0, 0}, {4, 0}, {0, 4} } }, // 1
     { "4\n2 9\n2 1\n2 -6\n2 4\n", NULL, 2, { {2, -6}, {2, 9} } }, // 2
     { "100001\n", "bad number of points", 0, { {0, 0} } }, // 3
@@ -27,16 +27,31 @@ static const struct { const char *const in, *const outError; int pointCount; poi
 
     { "-1\n", "bad number of points", 0, { {0, 0} } }, // 13
     { "3\n1 2\n4 3\n5\n", "bad number of lines", 0, { {0, 0} } }, // 14
-    { "3\n4 0\n0 0\n0 4\n", NULL, 3, { {0, 0}, { 0, 4 }, { 4, 0 } } }, // 15
-    { "3\n-7 3\n0 0\n7 -3\n", NULL, 3, { {-7, 3}, { 7, -3 } } }, // 16
+    { "3\n4 0\n0 0\n0 4\n", NULL, 3, { {0, 0}, {0, 4}, {4, 0} } }, // 15
+    { "3\n-7 3\n0 0\n7 -3\n", NULL, 2, { {-7, 3}, {7, -3} } }, // 16
+
+    { "8\n2 4\n-2 4\n0 0\n-3 9\n1 1\n-1 1\n3 9\n0 -6\n", NULL, 3, { {3, 9}, {-3, 9}, {0, -6} } }, // 17
+    { "8\n1 -1\n-1 -1\n2 -4\n-3 -9\n-2 -4\n0 0\n3 -9\n0 6\n", NULL, 3, { {3, -9}, {-3, -9}, {0, 6} } }, // 18
+    { "6\n-4 -1\n2 2\n1 4\n-2 -2\n-1 -4\n4 1\n", NULL, 4, { {4, 1}, {1, 4}, {-4, -1}, {-1, -4} } }, // 19
+    { "6\n3 3\n1 4\n-1 -4\n-4 -1\n4 1\n-3 -3\n", NULL, 6, { {4, 1}, {1, 4}, {-4, -1}, {-1, -4}, {3, 3}, {-3, -3} } }, // 20
     
-    { "8\n7 0\n4 0\n0 0\n3 0\n2 0\n1 0\n5 0\n6 0\n", NULL, 1, { {0, 0}, { 6, 0 } } }, // 17
-    { "8\n0 7\n0 4\n0 0\n0 3\n0 2\n0 1\n0 5\n0 6\n", NULL, 2, { {0, 0}, {0, 6} } }, // 18
-    { "8\n3 3\n-1 -1\n5 5\n-4 -4\n1 1\n2 2\n-2 -2\n3 3\n", NULL, 2, { {-4, -4}, {5, 5} } }, // 19
-    { "8\n4 -3\n3 4\n-3 -4\n-4 3\n4 3\n3 -4\n-4 -3\n-3 4\n", NULL, 8, { {-3, -4}, {3, -4}, {4, -3}, {4, 3}, {3, 4}, {-3, 4}, {-4, 3}, {-4, -3} } }, // 20
+    { "8\n7 0\n4 0\n0 0\n3 0\n2 0\n1 0\n5 0\n6 0\n", NULL, 2, { {0, 0}, { 7, 0 } } }, // 21
+    { "8\n0 7\n0 4\n0 0\n0 3\n0 2\n0 1\n0 5\n0 6\n", NULL, 2, { {0, 0}, {0, 7} } }, // 22
+    { "8\n3 3\n-1 -1\n5 5\n-4 -4\n1 1\n2 2\n-2 -2\n3 3\n", NULL, 2, { {-4, -4}, {5, 5} } }, // 23
+    { "8\n4 -3\n3 4\n-3 -4\n-4 3\n4 3\n3 -4\n-4 -3\n-3 4\n", NULL, 8, { {-3, -4}, {3, -4}, {4, -3}, {4, 3}, {3, 4}, {-3, 4}, {-4, 3}, {-4, -3} } }, // 24
+
+    { "3\n0 2147483647\n0 -2147483648\n1 2147483647\n", NULL, 3, { {0, INT_MAX}, {1, INT_MAX}, {0, INT_MIN} } }, // 25
+    { "3\n0 2147483647\n0 -2147483648\n-1 2147483647\n", NULL, 3, { {0, INT_MAX}, {-1, INT_MAX}, {0, INT_MIN} } }, // 26
+    { "3\n2147483647 0\n-2147483648 0\n2147483647 -1\n", NULL, 3, { {INT_MAX, 0}, {INT_MAX, -1}, {INT_MIN, 0} } }, // 27
+    { "3\n2147483647 0\n-2147483648 0\n2147483647 1\n", NULL, 3, { {INT_MAX, 0}, {INT_MAX, 1}, {INT_MIN, 0} } }, // 28
+
+    { "4\n2147483647 0\n-2147483648 0\n0 1\n-2147483648 3\n", NULL, 3, { {INT_MAX, 0}, {INT_MIN, 3}, {INT_MIN, 0} } }, // 29
+    { "5\n2147483647 0\n-2147483648 0\n-2147483647 1\n2147483647 2\n-2147483648 2\n", NULL, 4, { {INT_MAX, 0}, {INT_MAX, 2}, {INT_MIN, 2}, {INT_MIN, 0} } }, // 30
+    { "4\n2147483647 2147483647\n2147483647 2147483644\n-2147483648 -2147483648\n2147483646 2147483645\n", NULL, 3, { {INT_MAX, INT_MAX - 3}, {INT_MAX, INT_MAX}, {INT_MIN, INT_MIN} } }, // 31
+    { "4\n2147483647 -2147483648\n-2147483648 2147483647\n-2147483648 2147483644\n-2147483647 2147483645\n", NULL, 3, { {INT_MAX, INT_MIN}, {INT_MIN, INT_MAX - 3}, {INT_MIN, INT_MAX} } }, // 32
 };
 
-const char* ScanPoint(FILE* file, point_t* point)
+const char* ScanPoint(FILE* file, TPoint* point)
 {
     return ScanIntInt(file, &point->x, &point->y);
 }
@@ -57,9 +72,9 @@ static int FeedFromArray(void)
 static int CheckFromArray(void)
 {
     FILE *const out = fopen("out.txt", "r");
+    int passed = 1;
     if (!out) {
         printf("can't open out.txt\n");
-        ++testN;
         return -1;
     }
 
@@ -68,7 +83,7 @@ static int CheckFromArray(void)
         int findedCount = 0;
 
         for (int i = 0; i < testInOut[testN].pointCount; ++i) {
-            point_t point = { 0, 0 };
+            TPoint point = { 0, 0 };
             if (ScanPoint(out, &point) == Fail) {
                 fclose(out);
                 printf("short output -- %s\n", Fail);
@@ -96,40 +111,35 @@ static int CheckFromArray(void)
             return 1;
         }
 
-        ++testN;
+        passed = !HaveGarbageAtTheEnd(out);
     }   
     else if (testInOut[testN].outError != NULL) {
-        char error[32] = {0};
+        char error[128] = {0};
         const char* status = ScanChars(out, sizeof(error), error);
 
         if(status == Pass && _strnicmp(testInOut[testN].outError, error, strlen(testInOut[testN].outError)) != 0) {
             status = Fail;
         }
-
-        fclose(out);
+        
         if (status == Fail) {
+            fclose(out);
             printf("wrong output -- ");
         }
-        printf("%s\n", status);
-        ++testN;
-        return status == Fail;
+        
+        passed = status == Pass;
     }
 
-    int failed = HaveGarbageAtTheEnd(out);
 
+    ++testN;
     fclose(out);
-    printf("%s\n", (failed) ? Fail : Pass);
-    return failed;
+    printf("%s\n", (passed) ? Pass : Fail);
+    return !passed;
 }
 
 static int bigSegmentsN = 1;
-static int LabTimeout;
-static size_t LabMemoryLimit;
-
 static int FeederBigSegment(void)
 {
     FILE *const in = fopen("in.txt", "w");
-
     if (!in) {
         printf("can't create in.txt. No space on disk?\n");
         return -1;
@@ -140,65 +150,49 @@ static int FeederBigSegment(void)
     fprintf(in, "%d\n", MAX_POINT_COUNT);
 
     for (int i = MAX_POINT_COUNT - 1; i >= 0; --i) {
-        if (bigSegmentsN == 1) {
-            if (fprintf(in, "%d %d\n", i, 0) < 2) {
+        int x = 0;
+        int y = 0;
+
+        if (bigSegmentsN != 2) {
+            x = i;
+        }
+        if (bigSegmentsN != 1) {
+            y = i;
+        }
+        
+        if (fprintf(in, "%d %d\n", x, y) < 2) {
                 fclose(in);
                 printf("%s\n", "can't create in.txt. No space on disk?\n");
                 return -1;
             }
-        }
-        else if (bigSegmentsN == 2) {
-            if (fprintf(in, "%d %d\n", 0, i) < 2) {
-                fclose(in);
-                printf("%s\n", "can't create in.txt. No space on disk?\n");
-                return -1;
-            }
-        }
-        else if (bigSegmentsN == 3) {
-            if (fprintf(in, "%d %d\n", i, i) < 2) {
-                fclose(in);
-                printf("%s\n", "can't create in.txt. No space on disk?\n");
-                return -1;
-            }
-        }
     }
 
     fclose(in);
     printf("done. Starting exe... ");
     fflush(stdout);
-    LabMemoryLimit = MIN_PROCESS_RSS_BYTES + 8*MAX_POINT_COUNT;
     return 0;    
 }
 
 static int CheckerBigSegment(void)
 {
     FILE *const out = fopen("out.txt", "r");
-
     if (!out) {
         printf("can't open out.txt\n");
         return -1;
     }
 
-    int finded[2] = { 0 };
-    int findedCount = 0;
-
-    point_t pointOut[2] = { { 0, 0 } };
-
+    TPoint pointOut[2] = { { 0, 0 }, {MAX_POINT_COUNT - 1, MAX_POINT_COUNT - 1} };
     if (bigSegmentsN == 1) {
-        pointOut[1].x = MAX_POINT_COUNT - 1;
         pointOut[1].y = 0;
     }
     else if (bigSegmentsN == 2) {
         pointOut[1].x = 0;
-        pointOut[1].y = MAX_POINT_COUNT - 1;
     }
-    else if (bigSegmentsN == 3) {
-        pointOut[1].x = MAX_POINT_COUNT - 1;
-        pointOut[1].y = MAX_POINT_COUNT - 1;
-    }  
 
+    int finded[2] = { 0 };
+    int findedCount = 0;
     for (int i = 0; i < 2; ++i) {
-        point_t point = { 0, 0 };
+        TPoint point = { 0, 0 };
         if (ScanPoint(out, &point) == Fail) {
             fclose(out);
             printf("short output -- %s\n", Fail);
@@ -226,19 +220,18 @@ static int CheckerBigSegment(void)
         return 1;
     }
 
-    int failed = HaveGarbageAtTheEnd(out);
+    int passed = !HaveGarbageAtTheEnd(out);
 
     ++bigSegmentsN;
     fclose(out);
-    printf("%s\n", (failed) ? Fail : Pass);
-    return failed;
+    printf("%s\n", (passed) ? Pass : Fail);
+    return !passed;
 }
 
 static int bigTrianglesN = 1;
 static int FeederBigTriangle(void)
 {
     FILE *const in = fopen("in.txt", "w");
-
     if (!in) {
         printf("can't create in.txt. No space on disk?\n");
         return -1;
@@ -247,20 +240,23 @@ static int FeederBigTriangle(void)
     printf("Creating big triangle... ");
     fflush(stdout);
     fprintf(in, "%d\n", MAX_POINT_COUNT);
+    fprintf(in, "%d %d\n", INT_MIN, INT_MIN);
 
-    for (int i = MAX_POINT_COUNT - 2, j = 0; i >= 0; --i, ++j) {
-        if (fprintf(in, "%d %d\n", i, j) < 2) {
+    for (int i = 0; i < MAX_POINT_COUNT - 1; ++i) {
+        int x = INT_MAX;
+        int y = INT_MAX;
+        if (bigTrianglesN == 1) {
+            y -= i;
+        }
+        else if (bigTrianglesN == 2) {
+            x -= i;
+        }
+
+        if (fprintf(in, "%d %d\n", x, y) < 2) {
             fclose(in);
             printf("can't create in.txt. No space on disk?\n");
             return -1;
         }
-    }
-
-    if (bigTrianglesN == 1) {
-        fprintf(in, "0 0\n");
-    }
-    else if (bigTrianglesN == 2) {
-        fprintf(in, "99998 99998\n");
     }
 
     fclose(in);
@@ -272,28 +268,23 @@ static int FeederBigTriangle(void)
 static int CheckerBigTriangle(void)
 {
     FILE *const out = fopen("out.txt", "r");
-
     if (!out) {
         printf("can't open out.txt\n");
         return -1;
     }
 
-    int finded[3] = { 0 };
-    int findedCount = 0;
-
-    point_t pointOut[3] = { { MAX_POINT_COUNT - 2, 0 }, { 0, MAX_POINT_COUNT - 2 } };
-
+    TPoint pointOut[3] =  { { INT_MIN, INT_MIN }, { INT_MAX, INT_MAX }, { INT_MAX, INT_MAX } };
     if (bigTrianglesN == 1) {
-        pointOut[2].x = 0;
-        pointOut[2].y = 0;
+        pointOut[2].y = INT_MAX - MAX_POINT_COUNT + 2;
     }
     else if (bigTrianglesN == 2) {
-        pointOut[2].x = MAX_POINT_COUNT - 2;
-        pointOut[2].y = MAX_POINT_COUNT - 2;
+        pointOut[2].x = INT_MAX - MAX_POINT_COUNT + 2;
     } 
 
+    int finded[3] = { 0 };
+    int findedCount = 0;
     for (int i = 0; i < 3; ++i) {
-        point_t point = { 0, 0 };
+        TPoint point = { 0, 0 };
         if (ScanPoint(out, &point) == Fail) {
             fclose(out);
             printf("short output -- %s\n", Fail);
@@ -321,19 +312,18 @@ static int CheckerBigTriangle(void)
         return 1;
     }
 
-    int failed = HaveGarbageAtTheEnd(out);
+    int passed = !HaveGarbageAtTheEnd(out);
 
     ++bigTrianglesN;
     fclose(out);
-    printf("%s\n", (failed) ? Fail : Pass);
-    return failed;
+    printf("%s\n", (passed) ? Pass : Fail);
+    return !passed;
 }
 
 static int bigParabolsN = 1;
 static int FeederBigParabol(void)
 {
     FILE *const in = fopen("in.txt", "w");
-
     if (!in) {
         printf("can't create in.txt. No space on disk?\n");
         return -1;
@@ -344,26 +334,21 @@ static int FeederBigParabol(void)
     fprintf(in, "%d\n", MAX_POINT_COUNT);
 
     for (long long i = 1; i <= MAX_POINT_COUNT / 2; ++i) {
+        int printCount = 0;
         if (bigParabolsN == 1) {
-            if (fprintf(in, "%lld %lld\n%lld %lld\n", i, i*i + INT_MIN, -i, i*i + INT_MIN) < 4) {
-                fclose(in);
-                printf("can't create in.txt. No space on disk?\n");
-                return -1;
-            }
+            printCount = fprintf(in, "%lld %lld\n%lld %lld\n", i, i*i + INT_MIN, -i, i*i + INT_MIN);
         }
         else if (bigParabolsN == 2) {
-            if (fprintf(in, "%lld %lld\n%lld %lld\n", i, -i*i + INT_MAX, -i, -i*i + INT_MAX) < 4) {
-                fclose(in);
-                printf("can't create in.txt. No space on disk?\n");
-                return -1;
-            }
+            printCount = fprintf(in, "%lld %lld\n%lld %lld\n", i, -i*i + INT_MAX, -i, -i*i + INT_MAX);
         }
         else if (bigParabolsN == 3) {
-            if (fprintf(in, "%lld %lld\n%lld %lld\n", i*i + INT_MIN, i, i*i + INT_MIN, -i) < 4) {
-                fclose(in);
-                printf("can't create in.txt. No space on disk?\n");
-                return -1;
-            }
+            printCount = fprintf(in, "%lld %lld\n%lld %lld\n", i*i + INT_MIN, i, i*i + INT_MIN, -i);
+        }
+
+        if (printCount < 4) {
+            fclose(in);
+            printf("can't create in.txt. No space on disk?\n");
+            return -1;
         }
     }
 
@@ -376,7 +361,6 @@ static int FeederBigParabol(void)
 static int CheckerBigParabol(void)
 {
     FILE *const out = fopen("out.txt", "r");
-
     if (!out) {
         printf("can't open out.txt\n");
         return -1;
@@ -384,9 +368,8 @@ static int CheckerBigParabol(void)
 
     int finded[MAX_POINT_COUNT + 1] = { 0 };
     int findedCount = 0;
-
     for (int i = 0; i < MAX_POINT_COUNT; ++i) {
-        point_t point = { 0, 0 };
+        TPoint point = { 0, 0 };
         if (ScanPoint(out, &point) == Fail) {
             fclose(out);
             printf("short output -- %s\n", Fail);
@@ -394,7 +377,6 @@ static int CheckerBigParabol(void)
         }
 
         int index = 0;
-
         if(bigParabolsN == 1 || bigParabolsN == 2) {
             index = MAX_POINT_COUNT / 2 + point.x;
         }
@@ -418,12 +400,12 @@ static int CheckerBigParabol(void)
         return 1;
     }
 
-    int failed = HaveGarbageAtTheEnd(out);
+    int passed = !HaveGarbageAtTheEnd(out);
 
     ++bigParabolsN;
     fclose(out);
-    printf("%s\n", (failed) ? Fail : Pass);
-    return failed;
+    printf("%s\n", (passed) ? Pass : Fail);
+    return !passed;
 }
 
 const TLabTest LabTests[] = {
@@ -452,16 +434,31 @@ const TLabTest LabTests[] = {
     {FeedFromArray, CheckFromArray}, // 19
     {FeedFromArray, CheckFromArray}, // 20
     
-    {FeederBigSegment, CheckerBigSegment}, // 21
-    {FeederBigSegment, CheckerBigSegment}, // 22
-    {FeederBigSegment, CheckerBigSegment}, // 23
+    {FeedFromArray, CheckFromArray}, // 21
+    {FeedFromArray, CheckFromArray}, // 22
+    {FeedFromArray, CheckFromArray}, // 23
+    {FeedFromArray, CheckFromArray}, // 24
 
-    {FeederBigTriangle, CheckerBigTriangle}, // 24
-    {FeederBigTriangle, CheckerBigTriangle}, // 25
+    {FeedFromArray, CheckFromArray}, // 25
+    {FeedFromArray, CheckFromArray}, // 26
+    {FeedFromArray, CheckFromArray}, // 27
+    {FeedFromArray, CheckFromArray}, // 28
 
-    {FeederBigParabol, CheckerBigParabol}, // 26
-    {FeederBigParabol, CheckerBigParabol}, // 27
-    {FeederBigParabol, CheckerBigParabol} // 28
+    {FeedFromArray, CheckFromArray}, // 29
+    {FeedFromArray, CheckFromArray}, // 30
+    {FeedFromArray, CheckFromArray}, // 31
+    {FeedFromArray, CheckFromArray}, // 32
+    
+    {FeederBigSegment, CheckerBigSegment}, // 33
+    {FeederBigSegment, CheckerBigSegment}, // 34
+    {FeederBigSegment, CheckerBigSegment}, // 35
+
+    {FeederBigTriangle, CheckerBigTriangle}, // 36
+    {FeederBigTriangle, CheckerBigTriangle}, // 37
+
+    {FeederBigParabol, CheckerBigParabol}, // 38
+    {FeederBigParabol, CheckerBigParabol}, // 39
+    {FeederBigParabol, CheckerBigParabol}  // 40
 };
 
 TLabTest GetLabTest(int testIdx) {
@@ -473,7 +470,7 @@ int GetTestCount(void) {
 }
 
 const char* GetTesterName(void) {
-    return "Lab 10 Andrew Convex hull";
+    return "Lab 10 Convex hull";
 }
 
 static int LabTimeout = 3000;
