@@ -76,7 +76,7 @@ static int CheckFromArray(void)
         int findedCount = 0;
 
         for (int i = 0; i < testInOut[testN].pointCount; ++i) {
-            TPoint point = { 0, 0 };
+            TPoint point = {0, 0};
             if (ScanPoint(out, &point) == Fail) {
                 fclose(out);
                 printf("short output -- %s\n", Fail);
@@ -179,7 +179,7 @@ static int CheckerBigSegment(void)
         return -1;
     }
 
-    TPoint pointOut[2] = { { 0, 0 }, {MAX_POINT_COUNT - 1, MAX_POINT_COUNT - 1} };
+    TPoint pointOut[2] = { {0, 0}, {MAX_POINT_COUNT - 1, MAX_POINT_COUNT - 1} };
     if (bigSegmentsN == 1) {
         pointOut[1].y = 0;
     }
@@ -187,10 +187,10 @@ static int CheckerBigSegment(void)
         pointOut[1].x = 0;
     }
 
-    int finded[2] = { 0 };
+    int finded[2] = {0};
     int findedCount = 0;
     for (int i = 0; i < 2; ++i) {
-        TPoint point = { 0, 0 };
+        TPoint point = {0, 0};
         if (ScanPoint(out, &point) == Fail) {
             fclose(out);
             printf("short output -- %s\n", Fail);
@@ -284,10 +284,10 @@ static int CheckerBigTriangle(void)
         pointOut[2].x = INT_MAX - MAX_POINT_COUNT + 2;
     } 
 
-    int finded[3] = { 0 };
+    int finded[3] = {0};
     int findedCount = 0;
     for (int i = 0; i < 3; ++i) {
-        TPoint point = { 0, 0 };
+        TPoint point = {0, 0};
         if (ScanPoint(out, &point) == Fail) {
             fclose(out);
             printf("short output -- %s\n", Fail);
@@ -397,11 +397,11 @@ static int CheckerBigParabol(void)
 
 
     if(bigParabolsN == 1 || bigParabolsN == 2 || bigParabolsN == 3) {
-        int finded[MAX_POINT_COUNT + 1] = { 0 };
+        int finded[MAX_POINT_COUNT + 1] = {0};
         int findedCount = 0;
 
         for (int i = 0; i < MAX_POINT_COUNT; ++i) {
-            TPoint point = { 0, 0 };
+            TPoint point = {0, 0};
             if (ScanPoint(out, &point) == Fail) {
                 fclose(out);
                 printf("short output -- %s\n", Fail);
@@ -430,10 +430,10 @@ static int CheckerBigParabol(void)
         int x = MAX_POINT_COUNT / 4;
         TPoint pointOut[] =  { {x, x*x}, {x, -x*x}, {-x, x*x}, {-x, -x*x} };
 
-        int finded[4] = { 0 };
+        int finded[4] = {0};
         int findedCount = 0;
         for (int i = 0; i < 4; ++i) {
-            TPoint point = { 0, 0 };
+            TPoint point = {0, 0};
             if (ScanPoint(out, &point) == Fail) {
                 fclose(out);
                 printf("short output -- %s\n", Fail);
