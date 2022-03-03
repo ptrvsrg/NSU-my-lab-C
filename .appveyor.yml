@@ -1,0 +1,61 @@
+image:
+    # на этом VM-образе установлены все Visual Studio с 2008 по 2015
+    - Visual Studio 2015
+    - Ubuntu
+
+init:
+    # секция инициализации, исполняется до клонирования проекта
+    # скорее всего, строчка ниже необязательна (так должно быть по умолчанию),
+    # вместе с тем, она присутствует в официальных примерах, так что пусть будет:
+    - git config --global core.autocrlf input
+
+#clone_folder: c:\projects\my-prj # выбираем локальную директорию для клонирования
+shallow_clone: true              # копируем только последний коммит, без истории (git clone --depth 1)
+
+matrix:
+    fast_finish: false           # не останавливаемся после возникновения ошибки в каком-то из заданий
+
+platform:
+    # будем гонять CI на amd64 и x86...
+#    - x64
+    - x86
+
+# configuration:
+#    # ... и в дебажной, и в релизной конфигурациях ...
+#    - Debug
+#    - Release
+
+#environment:
+#    matrix:
+#        # ... на трёх студиях (2010, 2012, 2015)
+#        - TOOLCHAIN: msvc10
+#        - TOOLCHAIN: msvc12
+#        - TOOLCHAIN: msvc14
+
+install:
+    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+    - sh: sudo apt-get install -y ninja-build
+
+build_lab:
+    - cmd: cd src
+    - cmd: cmake -H. -Bbuild
+    - cmd: cmake --build build --config Release
+    - cmd: cd ..
+    - sh: cd src
+    - sh: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -G Ninja
+    - sh: cmake --build build
+    - sh: cd ..
+
+build_test:
+    - cmd: cd test
+    - cmd: cmake -H. -Bbuild
+    - cmd: cmake --build build --config Release
+    - cmd: cd ..
+    - sh: cd test
+    - sh: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -G Ninja
+    - sh: cmake --build build
+    - sh: cd ..
+
+test_run:
+    - cmd: test\build\Release\testlab10.exe src\build\Release\lab10.exe
+    - sh: test\build\Release\testlab10 src\build\Release\lab10
