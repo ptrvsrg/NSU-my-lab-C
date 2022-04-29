@@ -42,4 +42,4 @@ build_script:
 
 test_script:
     - cmd: test\build\Release\testlab10.exe src\build\Release\lab10.exe
-    - sh: test/build/Release/testlab10 src/build/Release/lab10
+    - sh: test\build\Release\testlab10 src\build\Release\lab10
