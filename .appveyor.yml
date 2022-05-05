@@ -42,6 +42,6 @@ build_script:
 
 test_script:
     #- cmd: test\build\Release\testlab10.exe src\build\Release\lab10.exe
-    - sh: cd src
+    - sh: cd src/build
     - sh: ls
     - sh: ./test/build/Release/testlab10 ./src/build/Release/lab10
