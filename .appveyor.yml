@@ -34,12 +34,12 @@ build_script:
     - sh: cd src
     - sh: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -G Ninja
     - sh: cmake --build build
-    - sh: chmod +x build/Release/lab10
+    - sh: chmod +x ./build/Release/lab10
     - sh: cd ..
     - sh: cd test
     - sh: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -G Ninja
     - sh: cmake --build build
-    - sh: chmod +x build/Release/testlab10
+    - sh: chmod +x ./build/Release/testlab10
     - sh: cd ..
 
 test_script:
