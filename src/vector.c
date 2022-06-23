@@ -5,13 +5,21 @@ TVector CreateVector(int max, int size)
 {
     TVector vector = { 0, max, size, NULL };
 
-    vector.Array = calloc(max, size);
-    if (vector.Array == NULL)
+    if (max > 0)
     {
-        OtherError(__FILE__, __LINE__);
+        vector.Array = calloc(max, size);
+        if (vector.Array == NULL)
+        {
+            OtherError(__FILE__, __LINE__);
+        }
     }
 
     return vector;
+}
+
+static bool IsEmptyVector(TVector vector)
+{
+    return vector.Count == 0;
 }
 
 void AssignVector(int size, const void* src, void* dest)
@@ -22,7 +30,7 @@ void AssignVector(int size, const void* src, void* dest)
     }
 }
 
-void* GetNthElementVector(TVector vector, int n)
+void* GetNthVector(TVector vector, int n)
 {
     if (n >= vector.Max)
     {
@@ -38,7 +46,7 @@ TVector InputVector(int count, int size, int (*Scan)(void*))
 
     for (int i = 0; i < count; ++i)
     {
-        if (Scan(GetNthElementVector(vector, i)) == EOF)
+        if (Scan(GetNthVector(vector, i)) == EOF)
         {
             DestroyVector(&vector);
             BadNumberOfLinesError();
@@ -52,7 +60,11 @@ TVector InputVector(int count, int size, int (*Scan)(void*))
 
 void DestroyVector(TVector* vector)
 {
-    free(vector->Array);
+    if (!IsEmptyVector(*vector))
+    {
+        free(vector->Array);
+    }
+    
     vector->Array = NULL;
     vector->Count = 0;
     vector->Max = 0;
