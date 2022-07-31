@@ -3,12 +3,17 @@ image:
 - Visual Studio 2019
 - Ubuntu2004
 build_script:
-- ps: cmake -Bbuild
-- ps: cd build
-- ps: cmake --build . --target lab_test lab_src
+- cmd: cmake -Bbuild
+- cmd: cd build
+- cmd: cmake --build . --target lab_test lab_src
+- sh: cmake -Bbuild
+- sh: cd build
+- sh: cmake --build . --target lab_test lab_src
 test_script:
-- ps: ctest -C Debug --rerun-failed --output-on-failure 2> $null
-- ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
+- cmd: ctest -C Debug --rerun-failed --output-on-failure 2> $null
+- cmd: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
+- sh: ctest -C Debug --rerun-failed --output-on-failure 2> $null
+- sh: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
 notifications:
 - provider: Email
   to:
