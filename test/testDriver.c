@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "testLab.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -155,7 +156,7 @@ const char* ScanInt(FILE* out, int* a) {
 }
 
 const char* ScanChars(FILE* out, size_t bufferSize, char* buffer) {
-    if (fgets(buffer, bufferSize, out) == NULL) {
+    if (fgets(buffer, (int)bufferSize, out) == NULL) {
         PrintWithoutBuffering("no output -- ");
         return Fail;
     }
@@ -179,7 +180,7 @@ static void ReportTimeout(const char labExe[]) {
 }
 
 static void ReportOutOfMemory(const char labExe[], unsigned labMem) {
-    PrintWithoutBuffering("\nExecutable file \"%s\" used %dKi > %dKi\n", labExe, RoundUptoThousand(labMem) / 1000, RoundUptoThousand(GetMemoryLimit()) / 1000);
+    PrintWithoutBuffering("\nExecutable file \"%s\" used %dKi > %dKi\n", labExe, RoundUptoThousand(labMem) / 1000, RoundUptoThousand((unsigned int)GetMemoryLimit()) / 1000);
 }
 
 static void ReportException(const char labExe[]) {
@@ -386,9 +387,9 @@ int LaunchLabExecutable(char* labExe)
         //fprintf(stderr, "PeakJobMemoryUsed %d\n", labJobLimits.PeakJobMemoryUsed);
         labMem0 = labJobLimits.PeakProcessMemoryUsed-labMem0;
     }
-    if ((long long)labMem0 > GetMemoryLimit()) {
+    if ((unsigned long long)labMem0 > (unsigned long long)GetMemoryLimit()) {
         exitCode = 1;
-        ReportOutOfMemory(labExe, labMem0);
+        ReportOutOfMemory(labExe, (unsigned int)labMem0);
     }
 
     CloseHandle(labInfo.hThread);
