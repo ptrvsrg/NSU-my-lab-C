@@ -1,19 +1,42 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(lab10)
+project(lab_src)
 
 set(SRC
     andrew.c
-    andrew.h
     error.c
-    error.h
     point.c
-    point.h
     stack.c
-    stack.h
     vector.c
-    vector.h
     main.c
+    andrew.h
+    error.h
+    point.h
+    stack.h
+    vector.h
     )
+    
+add_executable(${PROJECT_NAME} ${SRC})
 
-add_executable(lab10 ${SRC})
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+	target_compile_options(${PROJECT_NAME} PRIVATE
+            /W4
+			/WX)
+else ()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            -Werror
+            -Wall
+            -Wextra
+            -Waddress
+            -Warray-bounds
+            -Wbuiltin-macro-redefined
+            -Wswitch
+            -Wunreachable-code
+            -pedantic
+            -pedantic-errors)
+endif ()
+
+find_library(MATH_LIBRARY m)
+if(MATH_LIBRARY)
+	target_link_libraries(${PROJECT_NAME} PUBLIC ${MATH_LIBRARY})
+endif()
