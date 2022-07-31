@@ -5,7 +5,7 @@ image:
 build_script:
 - ps: cmake -Bbuild
 - ps: cd build
-- ps: cmake --build . --target lab_test lab-src
+- ps: cmake --build . --target lab_test lab_src
 test_script:
 - ps: ctest -C Debug --rerun-failed --output-on-failure
 - ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
