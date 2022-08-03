@@ -3,12 +3,16 @@ image:
 - Visual Studio 2019
 - Ubuntu2004
 build_script:
-- ps: cmake -Bbuild
-- ps: cd build
-- ps: cmake --build . --target lab_test lab_src
+- ps: cmake -B build_test
+- ps: cmake --build build_test --target lab_test lab_src
 test_script:
-- ps: ctest -C Debug --output-on-failure
+- ps: cmake --build build_test --target RUN_TESTS
+after_test:
+- ps: 7z a $env:APPVEYOR_BUILD_WORKER_IMAGE.zip build_test
 - ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
+artifacts:
+- path: $(APPVEYOR_BUILD_WORKER_IMAGE).zip
+  name: $(APPVEYOR_BUILD_WORKER_IMAGE)
 notifications:
 - provider: Email
   to:
