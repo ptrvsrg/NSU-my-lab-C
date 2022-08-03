@@ -8,11 +8,12 @@ build_script:
 test_script:
 - ps: cmake --build build_test --target RUN_TESTS
 after_test:
-- ps: 7z a $env:APPVEYOR_BUILD_WORKER_IMAGE.zip build_test
+- ps: 7z a build_test.zip build_test
+- ps: Push-AppveyorArtifact build_test.zip
 - ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
 artifacts:
-- path: $(APPVEYOR_BUILD_WORKER_IMAGE).zip
-  name: $(APPVEYOR_BUILD_WORKER_IMAGE)
+- path: build_test.zip
+  name: build_test
 notifications:
 - provider: Email
   to:
