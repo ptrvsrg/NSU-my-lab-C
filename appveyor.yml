@@ -12,7 +12,7 @@ after_test:
 - ps: if ($IsWindows) {$ARTIFACTS = "build_test_Windows"}
 - ps: if ($IsLinux) {$ARTIFACTS = "build_test_Linux"}
 - ps: 7z a $ARTIFACTS.zip $ARTIFACTS
-- ps: Push-AppveyorArtifact $ARTIFACTS.zip
+- ps: Push-AppveyorArtifact -Path "$ARTIFACTS.zip"
 - ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
 artifacts:
 - path: build_test_Windows.zip
