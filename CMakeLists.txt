@@ -8,8 +8,10 @@ add_subdirectory(test)
 include(CTest)
 enable_testing()
 
-set(LAB_TEST_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/test$<$<BOOL:${WIN32}>:/Debug>/lab_test$<$<BOOL:${WIN32}>:.exe>)
-set(LAB_SRC_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/src$<$<BOOL:${WIN32}>:/Debug>/lab_src$<$<BOOL:${WIN32}>:.exe>)
+set(EXE $<$<BOOL:${WIN32}>:.exe>)
+set(DEBUG $<$<BOOL:${WIN32}>:/Debug>)
+set(LAB_TEST_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/test${DEBUG}/lab_test${EXE})
+set(LAB_SRC_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/src${DEBUG}/lab_src${EXE})
 
 add_test(
     NAME ${PROJECT_NAME}
