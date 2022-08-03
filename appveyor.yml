@@ -9,10 +9,18 @@ test_script:
 - ps: if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
 - ps: if ($IsLinux) {cmake --build build_test --target test}
 after_test:
-- ps: if ($IsWindows) {$ARTIFACTS = "build_test_Windows"}
-- ps: if ($IsLinux) {$ARTIFACTS = "build_test_Linux"}
-- ps: 7z a $ARTIFACTS.zip $ARTIFACTS
-- ps: Push-AppveyorArtifact -Path "$ARTIFACTS.zip"
+- ps: >-
+    if ($IsWindows) 
+    {
+      7z a build_test_Windows.zip build_test_Windows
+      Push-AppveyorArtifact build_test_Windows.zip
+    }
+- ps: >-
+    if ($IsLinux) 
+    {
+      7z a build_test_Linux.zip build_test_Linux
+      Push-AppveyorArtifact build_test_Linux.zip
+    }
 - ps: if (Test-Path ./Testing/Temporary/LastTestsFailed.log) { exit 1 }
 artifacts:
 - path: build_test_Windows.zip
