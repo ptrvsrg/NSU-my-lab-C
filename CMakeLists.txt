@@ -10,8 +10,8 @@ enable_testing()
 
 set(EXE $<$<BOOL:${WIN32}>:.exe>)
 set(DEBUG $<$<BOOL:${WIN32}>:/Debug>)
-set(LAB_TEST_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/test${DEBUG}/lab_test${EXE})
-set(LAB_SRC_EXE ${CMAKE_CURRENT_SOURCE_DIR}/build/src${DEBUG}/lab_src${EXE})
+set(LAB_TEST_EXE ${CMAKE_BINARY_DIR}/test${DEBUG}/lab_test${EXE})
+set(LAB_SRC_EXE ${CMAKE_BINARY_DIR}/src${DEBUG}/lab_src${EXE})
 
 add_test(
     NAME ${PROJECT_NAME}
