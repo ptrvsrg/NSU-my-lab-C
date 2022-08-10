@@ -3,11 +3,31 @@ image:
 - Visual Studio 2019
 - Ubuntu2004
 build_script:
-- ps: cmake -B build_test
-- ps: cmake --build build_test --target lab_test lab_src
+- ps: >-
+    if ($IsWindows)
+    {
+      cmake -B build_test -DCMAKE_BUILD_TYPE=Release
+      cmake --build build_test --config Release --target lab_test lab_src
+      cmake --build build_test --target RUN_TESTS
+    }
+- ps: >-
+    if ($IsLinux)
+    {
+      cmake -B build_test -DCMAKE_BUILD_TYPE=Release
+      cmake --build build_test --target lab_test lab_src
+      cmake --build build_test --target test
+    }
 test_script:
-- ps: if ($IsWindows) {cmake --build build_test --target RUN_TESTS}
-- ps: if ($IsLinux) {cmake --build build_test --target test}
+- ps: >-
+    if ($IsWindows)
+    {
+      cmake --build build_test --target RUN_TESTS
+    }
+- ps: >-
+    if ($IsLinux)
+    {
+      cmake --build build_test --target test
+    }
 after_test:
 - ps: 7z a build_test.zip build_test
 - ps: Push-AppveyorArtifact build_test.zip
