@@ -411,6 +411,8 @@ int LaunchLabExecutable(char* labExe)
 #include <signal.h>            //for sigaction
 #include <sys/time.h>
 
+#define UNUSED(x) (void)x
+
 #ifdef __APPLE__
 // https://unix.stackexchange.com/questions/30940/getrusage-system-call-what-is-maximum-resident-set-size#comment552809_30940
 #define RU_MAXRSS_UNITS 1u
@@ -518,6 +520,7 @@ static int _LaunchLabExecutable(char* labExe)
             exit(EXIT_FAILURE);
         }
         int ret = execl(labExe, labExe, NULL);
+        UNUSED(ret);
         assert(ret == -1);
         ReportSystemError("execl");
         exit(EXIT_FAILURE);
