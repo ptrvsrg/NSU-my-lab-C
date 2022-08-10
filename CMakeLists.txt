@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(lab10)
+project(lab10 C)
 
 add_subdirectory(src)
 add_subdirectory(test)
@@ -9,9 +9,9 @@ include(CTest)
 enable_testing()
 
 set(EXE $<$<BOOL:${WIN32}>:.exe>)
-set(DEBUG $<$<BOOL:${WIN32}>:/Debug>)
-set(LAB_TEST_EXE ${CMAKE_BINARY_DIR}/test${DEBUG}/lab_test${EXE})
-set(LAB_SRC_EXE ${CMAKE_BINARY_DIR}/src${DEBUG}/lab_src${EXE})
+set(CONFIG $<$<BOOL:${WIN32}>:/${CMAKE_BUILD_TYPE}>)
+set(LAB_TEST_EXE ${CMAKE_BINARY_DIR}/test${CONFIG}/lab_test${EXE})
+set(LAB_SRC_EXE ${CMAKE_BINARY_DIR}/src${CONFIG}/lab_src${EXE})
 
 add_test(
     NAME ${PROJECT_NAME}
