@@ -17,7 +17,7 @@ jobs:
         cmake --build build --target lab_test lab_src
         
     - name: Test
-      run: cmake --build build --target test
+      run: ctest --extra-verbose
       
   windows:
     runs-on: windows-latest
@@ -30,4 +30,4 @@ jobs:
         cmake --build build --config Release --target lab_test lab_src
         
     - name: Test
-      run: cmake --build build --target RUN_TESTS
+      run: ctest --extra-verbose
