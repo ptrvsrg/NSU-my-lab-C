@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,3 +18,16 @@ jobs:
         
     - name: Test
       run: cmake --build build --target test
+      
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: |
+        cmake -B build
+        cmake --build build --config Release --target lab_test lab_src
+        
+    - name: Test
+      run: cmake --build build --target RUN_TESTS
