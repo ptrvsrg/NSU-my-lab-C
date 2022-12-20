@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v3
     - name: Build
     - run: |
         cmake -B build -DCMAKE_BUILD_TYPE=Release
@@ -22,6 +23,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - uses: actions/checkout@v3
     - name: Build
     - run: |
         cmake -B build
