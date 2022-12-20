@@ -6,29 +6,15 @@ on:
   pull_request:
 
 jobs:
-  linux_launch:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Build
-    - run: |
+      run: |
         cmake -B build -DCMAKE_BUILD_TYPE=Release
         cmake --build build --target lab_test lab_src
         
     - name: Test
-    - run: cmake --build build --target test
-    
-  windows_launch:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-    - run: |
-        cmake -B build
-        cmake --build build --config Release --target lab_test lab_src
-        
-    - name: Test
-    - run: cmake --build build --target RUN_TESTS
-
+      run: cmake --build build --target test
